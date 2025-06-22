@@ -8,27 +8,30 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class StatusReporter {
     public static void getReport(BlockingQueue<Task> queue, ConcurrentHashMap<UUID, TaskStatus> tasksState) {
 
-        Map<TaskStatus, List<UUID>> groupedByStatus =
-                tasksState
-                        .entrySet()
-                        .stream()
-                        .collect(Collectors.groupingBy(
-                                Map.Entry::getValue,
-                                Collectors.mapping(Map.Entry::getKey,
-                                        Collectors.toList())
-                        ));
+        Map<TaskStatus, Long> groupedByStatus = groupByStatus(tasksState);
 
         CustomLogger.appLog(
                 CustomLogger.LogLevel.INFO,
                 "QUEUE SIZE: " + queue.size() + " - " +
-                        "COMPLETED: " + groupedByStatus.entrySet().stream().filter(t -> t.getKey().equals(TaskStatus.COMPLETED)).toList().size() + " - " +
-                        "SUBMITTED:" + groupedByStatus.entrySet().stream().filter(t -> t.getKey().equals(TaskStatus.SUBMITTED)).toList().size() + " - " +
-                        "FAILED: " + groupedByStatus.entrySet().stream().filter(t -> t.getKey().equals(TaskStatus.FAILED)).toList().size()
+                        "TOTAL RECEIVED : " + tasksState.size() + " - " +
+                        "COMPLETED: " + groupedByStatus.getOrDefault(TaskStatus.COMPLETED, 0L) + " - " +
+                        "SUBMITTED: " + groupedByStatus.getOrDefault(TaskStatus.SUBMITTED, 0L) + " - " +
+                        "FAILED: " + groupedByStatus.getOrDefault(TaskStatus.FAILED, 0L)
         );
+    }
+
+    public static Map<TaskStatus, Long> groupByStatus(ConcurrentHashMap<UUID, TaskStatus> tasksState) {
+        return tasksState
+                .values().stream()
+                .collect(Collectors.groupingBy(
+                        Function.identity(),       // Group by the enum value
+                        Collectors.counting()      // Count how many per group
+                ));
     }
 }
