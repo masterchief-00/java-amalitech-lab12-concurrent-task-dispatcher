@@ -2,6 +2,7 @@ package com.kwizera.threads;
 
 import com.kwizera.enums.TaskStatus;
 import com.kwizera.models.Task;
+import com.kwizera.utils.CustomLogger;
 
 import java.time.Instant;
 import java.util.Random;
@@ -42,8 +43,7 @@ public class Producer implements Runnable {
 
                 queue.put(newTask);
                 tasksState.put(id, TaskStatus.SUBMITTED);
-                System.out.println(YELLOW + "SUBMITTED: " + name + "\n" + newTask.toString());
-                System.out.println("=================================================================");
+                CustomLogger.consoleRender(TaskStatus.SUBMITTED, "SUBMITTED: " + name + " [" + Thread.currentThread().getName() + "] at [" + newTask.getCreatedTimestamp() + "]" + "\n" + newTask.toString());
                 Thread.sleep(300);
             }
         } catch (InterruptedException ignored) {
