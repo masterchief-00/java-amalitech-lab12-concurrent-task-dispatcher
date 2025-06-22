@@ -2,6 +2,7 @@ package com.kwizera.threads;
 
 import com.kwizera.enums.TaskStatus;
 import com.kwizera.models.Task;
+import com.kwizera.utils.CustomLogger;
 
 import java.time.Instant;
 import java.util.Random;
@@ -15,6 +16,7 @@ public class Producer implements Runnable {
     private final BlockingQueue<Task> queue;
     private final ConcurrentHashMap<UUID, TaskStatus> tasksState;
     private static final Random random = new Random();
+    private static final String YELLOW = "\u001B[33m";
 
     public Producer(AtomicInteger taskCounter, BlockingQueue<Task> queue, ConcurrentHashMap<UUID, TaskStatus> tasksState) {
         this.queue = queue;
@@ -30,19 +32,22 @@ public class Producer implements Runnable {
         // wait N ms
         // repeat
 
-        while (true) {
-            UUID id = UUID.randomUUID();
-            String name = "Task number - " + taskCounter.incrementAndGet();
-            int priority = random.nextInt(3);
-            Instant timestamp = Instant.now();
-            String payload = "This the instructions of task TSK" + random.nextInt();
-            Task newTask = new Task(id, name, priority, payload, timestamp);
-            try {
+        try {
+            while (true) {
+                UUID id = UUID.randomUUID();
+                String name = "Task number - " + taskCounter.incrementAndGet();
+                int priority = random.nextInt(3);
+                Instant timestamp = Instant.now();
+                String payload = "This the instructions of task TSK" + random.nextInt();
+                Task newTask = new Task(id, name, priority, payload, timestamp);
+
                 queue.put(newTask);
                 tasksState.put(id, TaskStatus.SUBMITTED);
+                CustomLogger.consoleRender(TaskStatus.SUBMITTED, "SUBMITTED: " + name + " [" + Thread.currentThread().getName() + "] at [" + newTask.getCreatedTimestamp() + "]" + "\n" + newTask.toString());
                 Thread.sleep(300);
-            } catch (InterruptedException ignored) {
             }
+        } catch (InterruptedException ignored) {
         }
+
     }
 }

@@ -6,7 +6,7 @@ import java.util.UUID;
 public class Task implements Comparable<Task> {
     private UUID id;
     private String name;
-    private int priority;
+    private int priority; // 0 -> HIGH, 1-> MEDIUM, 2-> LOW
     private String payload;
     private Instant createdTimestamp;
 
@@ -62,9 +62,10 @@ public class Task implements Comparable<Task> {
     public int compareTo(Task other) {
         return Integer.compare(this.priority, other.priority);
     }
+
     @Override
     public String toString() {
-        return "Task{" +
+        return "Task {" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", priority=" + priority +
