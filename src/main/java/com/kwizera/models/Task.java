@@ -1,4 +1,4 @@
-package com.kwizera;
+package com.kwizera.models;
 
 import java.time.Instant;
 import java.util.UUID;
